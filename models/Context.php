@@ -224,8 +224,12 @@ class Context extends Component
                 // keep track of where the property inherits from
                 $p->addInherit($inheritedProperty->definedBy);
                 // set all properties that are empty.
-                foreach (['shortDescription', 'type', 'types'] as $property) {
+                foreach (['shortDescription', 'type', 'types', 'since'] as $property) {
                     if (empty($p->$property) || is_string($p->$property) && trim($p->$property) === '') {
+                        // only copy @since if the package names are equal (or missing)
+                        if ($property === 'since' && $p->getPackageName() !== $inheritedProperty->getPackageName()) {
+                            continue;
+                        }
                         $p->$property = $inheritedProperty->$property;
                     }
                 }
@@ -255,8 +259,12 @@ class Context extends Component
                 // keep track of where the method inherits from
                 $m->addInherit($inheritedMethod->definedBy);
                 // set all properties that are empty.
-                foreach (['shortDescription', 'return', 'returnType', 'returnTypes', 'exceptions'] as $property) {
+                foreach (['shortDescription', 'return', 'returnType', 'returnTypes', 'exceptions', 'since'] as $property) {
                     if (empty($m->$property) || is_string($m->$property) && trim($m->$property) === '') {
+                        // only copy @since if the package names are equal (or missing)
+                        if ($property === 'since' && $m->getPackageName() !== $inheritedMethod->getPackageName()) {
+                            continue;
+                        }
                         $m->$property = $inheritedMethod->$property;
                     }
                 }
