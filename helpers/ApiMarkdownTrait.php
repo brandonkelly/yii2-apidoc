@@ -34,10 +34,8 @@ trait ApiMarkdownTrait
         $title = (empty($matches[2]) || $matches[2] == '|') ? null : substr($matches[2], 1);
 
         /** @var TypeDoc[] $contexts */
-        $contexts = [];
-        if ($this->renderingContext) {
-            $this->_findContexts($this->renderingContext, $contexts);
-        }
+        $this->_findContexts($this->renderingContext, $contexts);
+        $contexts = array_unique($contexts, SORT_REGULAR);
         $contexts[] = null;
 
         $e = null;
@@ -71,27 +69,25 @@ trait ApiMarkdownTrait
      */
     private function _findContexts($type, &$contexts = array())
     {
+        if ($type === null) {
+            return;
+        }
+
         $contexts[] = $type;
 
         if ($type instanceof ClassDoc) {
-            if (!empty($type->traits)) {
-                foreach ($type->traits as $trait) {
-                    $this->_findContexts(static::$renderer->apiContext->getType($trait), $contexts);
-                }
+            foreach ($type->traits as $trait) {
+                $this->_findContexts(static::$renderer->apiContext->getType($trait), $contexts);
             }
-            if (!empty($type->interfaces)) {
-                foreach ($type->interfaces as $interface) {
-                    $this->_findContexts(static::$renderer->apiContext->getType($interface), $contexts);
-                }
+            foreach ($type->interfaces as $interface) {
+                $this->_findContexts(static::$renderer->apiContext->getType($interface), $contexts);
             }
             if ($type->parentClass) {
                 $this->_findContexts(static::$renderer->apiContext->getType($type->parentClass), $contexts);
             }
         } elseif ($type instanceof InterfaceDoc) {
-            if (!empty($type->parentInterfaces)) {
-                foreach ($type->parentInterfaces as $interface) {
-                    $this->_findContexts(static::$renderer->apiContext->getType($interface), $contexts);
-                }
+            foreach ($type->parentInterfaces as $interface) {
+                $this->_findContexts(static::$renderer->apiContext->getType($interface), $contexts);
             }
         }
     }
